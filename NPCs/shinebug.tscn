@@ -1,0 +1,113 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://NPCs/shinebug.gd" type="Script" id=1]
+[ext_resource path="res://assets/dragonFly.png" type="Texture" id=2]
+[ext_resource path="res://npcScript/shineBug/shineBugController.gd" type="Script" id=3]
+[ext_resource path="res://assets/music/mosquito.wav" type="AudioStream" id=4]
+
+[sub_resource type="CircleShape2D" id=4]
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=7]
+atlas = ExtResource( 2 )
+region = Rect2( 32, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=8]
+atlas = ExtResource( 2 )
+region = Rect2( 64, 0, 32, 32 )
+
+[sub_resource type="SpriteFrames" id=9]
+animations = [ {
+"frames": [ SubResource( 6 ), SubResource( 7 ), SubResource( 8 ) ],
+"loop": true,
+"name": "fly",
+"speed": 24.0
+} ]
+
+[sub_resource type="CircleShape2D" id=5]
+
+[node name="shinebug" type="KinematicBody2D"]
+position = Vector2( 435, 214 )
+collision_layer = 0
+collision_mask = 0
+script = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( -3, 6 )
+shape = SubResource( 4 )
+
+[node name="Sprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 9 )
+animation = "fly"
+playing = true
+
+[node name="left" type="Node2D" parent="."]
+
+[node name="left" type="RayCast2D" parent="left"]
+rotation = 1.5708
+
+[node name="left2" type="RayCast2D" parent="left"]
+rotation = 1.22173
+
+[node name="left3" type="RayCast2D" parent="left"]
+rotation = 1.91986
+
+[node name="right" type="Node2D" parent="."]
+
+[node name="right" type="RayCast2D" parent="right"]
+rotation = -1.5708
+
+[node name="right2" type="RayCast2D" parent="right"]
+rotation = -1.22173
+
+[node name="right3" type="RayCast2D" parent="right"]
+rotation = -1.91986
+
+[node name="down" type="Node2D" parent="."]
+
+[node name="down" type="RayCast2D" parent="down"]
+scale = Vector2( 1, 1.5 )
+
+[node name="down2" type="RayCast2D" parent="down"]
+rotation = -0.349066
+scale = Vector2( 1, 1.6 )
+
+[node name="down3" type="RayCast2D" parent="down"]
+rotation = 0.349066
+scale = Vector2( 1, 1.6 )
+
+[node name="shineBugController" type="Node2D" parent="."]
+script = ExtResource( 3 )
+
+[node name="long_term_moves" type="Timer" parent="shineBugController"]
+wait_time = 5.0
+autostart = true
+
+[node name="short_term_move" type="Timer" parent="shineBugController"]
+wait_time = 0.15
+autostart = true
+
+[node name="flip" type="Timer" parent="shineBugController"]
+wait_time = 8.0
+autostart = true
+
+[node name="hurtBox" type="Area2D" parent="."]
+collision_layer = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="hurtBox"]
+position = Vector2( -1, 5 )
+scale = Vector2( 1.64, 1 )
+shape = SubResource( 5 )
+
+[node name="bugNoise" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource( 4 )
+autoplay = true
+max_distance = 150.0
+
+[connection signal="timeout" from="shineBugController/long_term_moves" to="shineBugController" method="_on_long_term_moves_timeout"]
+[connection signal="timeout" from="shineBugController/short_term_move" to="shineBugController" method="_on_short_term_move_timeout"]
+[connection signal="timeout" from="shineBugController/flip" to="shineBugController" method="_on_flip_timeout"]
+[connection signal="body_entered" from="hurtBox" to="." method="_on_hurtBox_body_entered"]

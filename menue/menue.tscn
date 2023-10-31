@@ -1,0 +1,132 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://assets/menueBg.png" type="Texture" id=1]
+[ext_resource path="res://assets/start.png" type="Texture" id=2]
+[ext_resource path="res://assets/controlsins.png" type="Texture" id=3]
+[ext_resource path="res://assets/startpressedt.png" type="Texture" id=8]
+[ext_resource path="res://menue/scripts/list.gd" type="Script" id=11]
+[ext_resource path="res://assets/music/frogTrout.wav" type="AudioStream" id=12]
+[ext_resource path="res://levelScene/World.tscn" type="PackedScene" id=13]
+
+[sub_resource type="Shader" id=4]
+code = "shader_type canvas_item;
+//
+//uniform sampler2D image : hint_albedo;
+//uniform float time = 100;
+//
+//void fragment() {
+//    vec2 uv = SCREEN_UV;
+//
+//    // Get the color of the image at the current UV coordinate
+//    vec4 baseColor = texture(image, uv);
+//
+//    // Define the burning effect parameters
+//    float burnIntensity = 0.5;    // Controls the intensity of the burn effect
+//    float speed = 1.0;            // Controls the speed of the burn effect
+//
+//    // Generate perlin noise based on the UV coordinate and time
+//    float noise1 = (sin((uv.x + uv.y) * 10.0 + (time-TIME) * speed) + 1.0) * 0.5;
+//	float noise2 = (cos((uv.x + uv.y) * 30.0 + (time-TIME) * speed) + 1.0) * 0.5;
+//    // Adjust the base color based on the noise and burn intensity
+//    vec3 burnedColor = baseColor.rgb + (noise1*noise2) * burnIntensity;
+//
+//    // Apply the burned color to the output
+//    COLOR.rgb = burnedColor;
+//    COLOR.a = baseColor.a;
+//}
+
+
+
+
+uniform sampler2D image : hint_albedo;
+uniform float time;
+
+void fragment() {
+    vec2 uv = SCREEN_UV;
+
+    // Get the color of the image at the current UV coordinate
+    vec4 baseColor = texture(image, uv);
+
+    // Define the weathered effect parameters
+    float weatherIntensity = 0.3;  // Controls the intensity of the weathered effect
+    float speed = 1.0;             // Controls the speed of the weathered effect
+
+    // Generate Perlin noise based on the UV coordinate and time
+    float noise = (sin((uv.x + uv.y) * 10.0 + time * speed) + 1.0) * 0.5;
+
+    // Adjust the base color based on the noise and weather intensity
+    vec3 weatheredColor = baseColor.rgb - vec3(noise * weatherIntensity);
+
+    // Apply the weathered color to the output
+    COLOR.rgb = weatheredColor;
+    COLOR.a = baseColor.a;
+}
+"
+
+[sub_resource type="ShaderMaterial" id=5]
+shader = SubResource( 4 )
+shader_param/time = 3.0
+shader_param/image = ExtResource( 1 )
+
+[sub_resource type="Animation" id=3]
+resource_name = "controls"
+length = 0.2
+
+[sub_resource type="Animation" id=2]
+resource_name = "options"
+length = 0.2
+
+[sub_resource type="Animation" id=1]
+resource_name = "start"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/path = NodePath("start:margin_left")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ 0.0, 100, 0.0 ]
+}
+
+[node name="menue" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="bj" type="Sprite" parent="."]
+material = SubResource( 5 )
+position = Vector2( 448, 448 )
+texture = ExtResource( 1 )
+
+[node name="list" type="VBoxContainer" parent="."]
+margin_left = 256.0
+margin_top = 320.0
+margin_right = 668.0
+margin_bottom = 771.0
+custom_constants/separation = 50
+script = ExtResource( 11 )
+gamescene = ExtResource( 13 )
+
+[node name="start" type="TextureButton" parent="list"]
+margin_right = 412.0
+margin_bottom = 200.0
+texture_normal = ExtResource( 2 )
+texture_pressed = ExtResource( 8 )
+
+[node name="animate" type="AnimationPlayer" parent="list"]
+anims/controls = SubResource( 3 )
+anims/options = SubResource( 2 )
+anims/start = SubResource( 1 )
+
+[node name="trout" type="AudioStreamPlayer" parent="list"]
+stream = ExtResource( 12 )
+
+[node name="controls" type="Sprite" parent="."]
+position = Vector2( 480, 640 )
+texture = ExtResource( 3 )
+
+[connection signal="button_up" from="list/start" to="list" method="_on_start_button_up"]
+[connection signal="animation_finished" from="list/animate" to="list" method="_on_animate_animation_finished"]
